@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>9898845843공학용 계산기</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .calculator {
+      width: 100%;
+      max-width: 400px;
+      background: #222;
+      padding: 5vw;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    .display {
+      width: 100%;
+      height: auto;
+      background: #000;
+      color: #0f0;
+      text-align: right;
+      padding: 1rem;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      word-wrap: break-word;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    button {
+      padding: 1rem;
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      font-weight: bold;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      background: #555;
+      color: #fff;
+      transition: background 0.2s;
+    }
+    button:hover { background: #666; }
+    button.operator { background: #f39c12; }
+    button.equal { background: #2ecc71; }
+    button.clear { background: #e74c3c; }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="buttons">
+      <button onclick="clearDisplay()" class="clear">C</button>
+      <button onclick="appendValue('(')">(</button>
+      <button onclick="appendValue(')')">)</button>
+      <button onclick="appendValue('/')" class="operator">÷</button>
+
+      <button onclick="appendValue('7')">7</button>
+      <button onclick="appendValue('8')">8</button>
+      <button onclick="appendValue('9')">9</button>
+      <button onclick="appendValue('*')" class="operator">×</button>
+
+      <button onclick="appendValue('4')">4</button>
+      <button onclick="appendValue('5')">5</button>
+      <button onclick="appendValue('6')">6</button>
+      <button onclick="appendValue('-')" class="operator">−</button>
+
+      <button onclick="appendValue('1')">1</button>
+      <button onclick="appendValue('2')">2</button>
+      <button onclick="appendValue('3')">3</button>
+      <button onclick="appendValue('+')" class="operator">+</button>
+
+      <button onclick="appendValue('0')">0</button>
+      <button onclick="appendValue('.')">.</button>
+      <button onclick="calculate()" class="equal">=</button>
+      <button onclick="appendFunction('Math.sqrt')">√</button>
+
+      <button onclick="appendFunction('Math.sin')">sin</button>
+      <button onclick="appendFunction('Math.cos')">cos</button>
+      <button onclick="appendFunction('Math.tan')">tan</button>
+      <button onclick="appendFunction('Math.log')">log</button>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById("display");
+    let expression = "";
+
+    function updateDisplay() {
+      let visual = expression
+        .replace(/\*/g, "×")
+        .replace(/\/+/g, "÷");
+      display.textContent = visual || "0";
+    }
+
+    function appendValue(value) {
+      if (display.textContent === "오류") expression = "";
+      expression += value === "x" ? "*" : value;
+      updateDisplay();
+    }
+
+    function appendFunction(func) {
+      if (display.textContent === "오류") expression = "";
+      expression += `${func}(`;
+      updateDisplay();
+    }
+
+    function clearDisplay() {
+      expression = "";
+      updateDisplay();
+    }
+
+    function calculate() {
+      try {
+        const result = Function(`return ${expression}`)();
+        expression = result.toString();
+        updateDisplay();
+      } catch {
+        display.textContent = "오류";
+        expression = "";
+      }
+    }
+
+    document.addEventListener("keydown", (e) => {
+      const key = e.key;
+      if (!isNaN(key) || "+-*/().".includes(key) || key === "x") {
+        appendValue(key);
+      } else if (key === "Enter") {
+        calculate();
+      } else if (key === "Backspace") {
+        expression = expression.slice(0, -1);
+        updateDisplay();
+      }
+    });
+  </script>
+</body>
+</html>
