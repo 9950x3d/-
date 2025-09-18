@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>????</title>
   <style>
     body {
@@ -17,15 +18,43 @@
       border: 2px solid #ccc;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      max-width: 100%;
+      height: auto;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
     }
   </style>
 </head>
 <body>
-  <h1>????</h1>
-  <video width="720" height="405" autoplay muted playsinline>
-    <source src="https://www.dropbox.com/scl/fi/ie01vn0374qvhdsnyf8l0/.mp4?rlkey=vyimf968p4upd6lcte9fytyp0&st=i6t4m0q6&raw=1" type="video/mp4">
-    브라우저가 video 태그를 지원하지 않습니다.
-  </video>
-  <p>??????</p>
+  <div class="container">
+    <h1>????</h1>
+
+    <video id="myVideo" width="720" height="405" controls autoplay loop>
+      <source src="https://www.dropbox.com/scl/fi/ie01vn0374qvhdsnyf8l0/.mp4?rlkey=vyimf968p4upd6lcte9fytyp0&st=i6t4m0q6&raw=1" type="video/mp4" />
+      브라우저가 video 태그를 지원하지 않습니다.
+    </video>
+
+    <p id="desc">이 영상은 ????입니다.</p>
+  </div>
+
+  <script>
+    const video = document.getElementById('myVideo');
+
+    // 자동 재생 및 볼륨 최대 설정
+    video.volume = 1.0; // 볼륨을 최대치로 설정
+    video.play().catch(() => {
+      // 자동 재생이 차단되면 사용자 클릭으로 재생하도록 버튼 표시 (선택)
+      const btn = document.createElement('button');
+      btn.textContent = '재생하려면 클릭';
+      btn.style.marginTop = '12px';
+      btn.onclick = () => {
+        video.play();
+        btn.remove();
+      };
+      document.querySelector('.container').appendChild(btn);
+    });
+  </script>
 </body>
 </html>
