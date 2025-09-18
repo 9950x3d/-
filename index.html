@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>?????</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>비디오 반복</title>
   <style>
-    body {background:#f0f0f0; font-family:sans-serif; text-align:center; padding:50px;}
-    h1 {color:#333;}
-    .container {max-width:900px; margin:0 auto; position:relative;}
+    body { background:#f0f0f0; font-family:sans-serif; text-align:center; padding:50px; }
+    h1 { color:#333; }
+    .container { max-width:900px; margin:0 auto; position:relative; }
     video {
       border:2px solid #ccc;
       border-radius:8px;
       box-shadow:0 0 10px rgba(0,0,0,0.2);
       max-width:100%;
       height:auto;
+      display:block;
     }
-    .overlay {position:absolute; top:0; left:0; width:100%; height:100%; cursor:pointer;}
+    .overlay {
+      position:absolute; top:0; left:0; width:100%; height:100%; cursor:pointer;
+    }
     .loading {
       position:absolute; top:50%; left:50%;
       transform:translate(-50%,-50%);
-      background:rgba(0,0,0,0.6);
-      color:#fff; padding:10px 20px;
-      border-radius:6px; font-size:1.2rem;
-      display:none;
+      background:rgba(0,0,0,0.6); color:#fff;
+      padding:10px 20px; border-radius:6px;
+      font-size:1.2rem; display:none;
     }
   </style>
 </head>
@@ -30,14 +32,13 @@
   <div class="container">
     <h1>?????</h1>
 
-    <video id="myVideo" width="720" height="405"
-           controls playsinline muted>
+    <video id="myVideo" width="720" height="405" playsinline muted>
       <source src="https://www.dropbox.com/scl/fi/ie01vn0374qvhdsnyf8l0/.mp4?rlkey=vyimf968p4upd6lcte9fytyp0&st=i6t4m0q6&raw=1" type="video/mp4">
       브라우저가 video 태그를 지원하지 않습니다.
     </video>
 
-    <div class="overlay" id="overlay"></div>
-    <div class="loading" id="loading">로딩 중…</div>
+    <div id="overlay" class="overlay"></div>
+    <div id="loading" class="loading">로딩 중…</div>
     <p>유시후</p>
   </div>
 
@@ -45,50 +46,36 @@
     const video = document.getElementById('myVideo');
     const overlay = document.getElementById('overlay');
     const loading = document.getElementById('loading');
-    let started = false;
-    const startTime = 44; // 시작 시각(초)
+    const startAt = 44;  // 시작 시각
+    let soundOn = false;
 
     // 로딩 표시
-    video.addEventListener('loadstart', () => loading.style.display = 'block');
-    video.addEventListener('canplaythrough', () => loading.style.display = 'none');
+    video.addEventListener('loadstart', () => loading.style.display='block');
+    video.addEventListener('canplaythrough', () => loading.style.display='none');
 
-    // 재생이 시작되면 44초로 점프
-    video.addEventListener('loadedmetadata', () => {
-      video.currentTime = startTime;
-    });
+    // 메타데이터 로드 후 시작 지점
+    video.addEventListener('loadedmetadata', () => video.currentTime = startAt);
 
-    // 구간 반복: 끝에 도달하면 다시 44초로
-    video.addEventListener('timeupdate', () => {
-      if (video.currentTime < startTime) {
-        video.currentTime = startTime;
-      }
-    });
-    video.addEventListener('ended', () => {
-      video.currentTime = startTime;
-      video.play();
-    });
+    // 구간 반복
+    video.addEventListener('timeupdate', () => { if(video.currentTime < startAt) video.currentTime = startAt; });
+    video.addEventListener('ended', () => { video.currentTime = startAt; video.play(); });
 
-    // 자동 재생 시도
-    function tryPlay() {
-      video.volume = 1.0;
-      video.play()
-        .then(() => started = true)
-        .catch(() => {});
-    }
-    tryPlay();
+    // 자동 재생(무음)
+    video.play().catch(()=>{});
 
-    // 화면 클릭 → 재생
+    // 화면 클릭 → 소리 최대 & 재생 + overlay 제거
     overlay.addEventListener('click', () => {
-      if (!started) {
-        video.play();
-        started = true;
+      if(!soundOn){
+        video.muted = false;
+        video.volume = 1;
+        soundOn = true;
       }
+      video.play();
+      overlay.remove(); // 클릭 후 overlay 완전히 제거
     });
 
-    // 멈춤 방지
-    video.addEventListener('pause', () => {
-      if (started) video.play();
-    });
+    // 멈추지 않게
+    video.addEventListener('pause', () => video.play());
 
     // 다운로드 방지
     video.addEventListener('contextmenu', e => e.preventDefault());
